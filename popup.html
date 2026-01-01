@@ -23,16 +23,28 @@
                 <button id="deleteProfileBtn" class="icon-btn danger" title="Delete Profile">🗑️</button>
             </div>
 
-            <div class="actions-bar">
+            <!-- Toolbar Row -->
+            <div class="toolbar">
+                <button id="smartPasteBtn" class="tool-btn" title="Paste from Resume">
+                    📋 <span>Paste</span>
+                </button>
+                <button id="scanJobBtn" class="tool-btn" title="Scan Job Description">
+                    🔍 <span>Scan</span>
+                </button>
+                <button id="importBtn" class="tool-btn" title="Import Profiles">
+                    ⬆️ <span>Import</span>
+                </button>
+                <button id="exportBtn" class="tool-btn" title="Export Profiles">
+                    ⬇️ <span>Export</span>
+                </button>
+                <button id="clearAllBtn" class="tool-btn" title="Clear All Skills" style="color: var(--danger-color);">
+                    🗑️ <span>Clear</span>
+                </button>
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+            </div>
+
+            <div style="text-align: right; margin-bottom: 4px;">
                 <span id="skillCount" class="skill-count">0 skills</span>
-                <button id="clearAllBtn" class="text-btn" style="color: #ff5252; margin-left: auto; margin-right: 10px;"
-                    title="Remove all skills">Clear All</button>
-                <div class="data-controls">
-                    <button id="exportBtn" class="text-btn" title="Export Profiles">⬇️ Export</button>
-                    <button id="importBtn" class="text-btn" title="Import Profiles">⬆️ Import</button>
-                    <input type="file" id="importFile" accept=".json" style="display: none;">
-                </div>
-                <button id="scanJobBtn" class="text-btn" title="Check for missing skills">🔍 Scan Job</button>
             </div>
 
             <div id="suggestionsArea" class="suggestions-area" style="display:none;">

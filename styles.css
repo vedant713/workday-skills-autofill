@@ -286,6 +286,7 @@ body.dark-mode .icon-btn.danger:hover {
         transform: scale(1);
     }
 }
+
 /* Suggestions Area */
 .suggestions-area {
     background: #fff3e0;
@@ -366,6 +367,47 @@ body.dark-mode .tag.suggestion:hover {
     border-radius: 12px;
     font-size: 11px;
     font-weight: bold;
-    background-color: #9e9e9e; /* Default gray */
+    background-color: #9e9e9e;
+    /* Default gray */
     transition: background-color 0.3s ease;
 }
+/* Icon Toolbar */
+.toolbar {
+    display: flex;
+    justify-content: space-around;
+    background: var(--secondary-color);
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.tool-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 6px;
+    border-radius: 6px;
+    transition: background 0.2s, transform 0.1s;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.tool-btn:hover {
+    background: rgba(0,0,0,0.05);
+    transform: translateY(-1px);
+}
+
+.tool-btn:active {
+    transform: translateY(0);
+}
+
+.tool-btn span {
+    font-size: 9px;
+    font-weight: 600;
+}
+
+/* Tooltip on hover (simple title attr used, but styling helps touch targets) */
