@@ -40,3 +40,23 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         });
     }
 });
+
+chrome.commands.onCommand.addListener((command) => {
+    if (command === "autofill-skills") {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs.length === 0) return;
+            const tabId = tabs[0].id;
+
+            chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                files: ["content.js"]
+            }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error("Autofill invocation failed:", chrome.runtime.lastError);
+                } else {
+                    console.log("Autofill triggered via shortcut!");
+                }
+            });
+        });
+    }
+});
