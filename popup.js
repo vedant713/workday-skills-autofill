@@ -246,19 +246,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // --- Scan Job (Gap Analysis) ---
 
+    let lastFoundSkills = []; // Store results for "Add All"
+
     // Reuse parser matching logic but return array
     function extractSkillsFromText(text) {
         let processed = text.replace(/\s-\s/g, "\n");
-        const rawItems = processed.split(/[\n,•*|():]+/);
+        const rawItems = processed.split(/[\n,•*|/:;]+/);
         const uniqueSkills = new Set();
 
+        // Expanded known list for lowercase matching
+        const KNOWN_TECH = [
+            "git", "sql", "css", "html", "aws", "azure", "gcp", "ci/cd", "docker", "kubernetes",
+            "linux", "python", "java", "javascript", "typescript", "react", "angular", "vue",
+            "node.js", "django", "flask", "spring", "jira", "agile", "scrum", "excel", "redux"
+        ];
+
+        // Common noise words to ignore if capitalized
+        const IGNORE_WORDS = ["The", "We", "You", "If", "And", "Or", "For", "To", "In", "A", "An", "Experience", "Strong", "Proficiency", "Knowledge", "Bonus", "Familiarity", "With", "Job", "Description", "Mock", "Skills", "Selected"];
+
         rawItems.forEach(item => {
-            const clean = item.trim();
-            // Stricter filter for scanner to avoid too much noise from full page text
-            // Look for Capitalized Words or known tech keywords logic could be improved here
-            // For now, using same length heuristics but maybe excluding common stop words
-            if (clean && clean.length > 2 && clean.length < 30 && clean.toLowerCase() !== "skills") {
-                uniqueSkills.add(clean);
+            let clean = item.trim();
+            // Remove common trailing punctuation
+            clean = clean.replace(/[.)\]]+$/, "");
+
+            if (clean && clean.length > 1 && clean.length < 40) {
+                const lower = clean.toLowerCase();
+
+                // 1. Check strict known list (allows lowercase)
+                if (KNOWN_TECH.includes(lower)) {
+                    uniqueSkills.add(clean);
+                }
+                // 2. Check for Capitalized Words (Proper Nouns) 
+                else if (clean[0] === clean[0].toUpperCase() && clean[0] !== clean[0].toLowerCase()) {
+                    // Filter out common English stop words
+                    if (!IGNORE_WORDS.includes(clean) && !lower.includes("experience with") && !lower.includes("proficiency in")) {
+                        uniqueSkills.add(clean);
+                    }
+                }
             }
         });
         return Array.from(uniqueSkills);
@@ -281,12 +305,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (response && response.text) {
                             const foundSkills = extractSkillsFromText(response.text);
                             const currentTags = getCurrentTags();
-                            const missing = foundSkills.filter(skill =>
-                                !currentTags.includes(skill) &&
-                                // Simple noise filter: Only show if it looks like a proper noun (Starts with Cap) or is known short tech
-                                (skill[0] === skill[0].toUpperCase() || ["git", "sql", "css", "aws"].includes(skill.toLowerCase()))
-                            );
+                            const missing = foundSkills.filter(skill => !currentTags.includes(skill));
 
+                            lastFoundSkills = missing; // Save for Add All
                             renderSuggestions(missing);
                             if (missing.length > 0) {
                                 suggestionsArea.style.display = "block";
@@ -304,6 +325,32 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("closeSuggestions").addEventListener("click", () => {
         suggestionsArea.style.display = "none";
     });
+
+    // Add All Button
+    const addAllBtn = document.getElementById("addAllSuggestions");
+    if (addAllBtn) {
+        addAllBtn.addEventListener("click", () => {
+            if (lastFoundSkills.length > 0) {
+                const current = getCurrentTags();
+                let addedCount = 0;
+                lastFoundSkills.forEach(skill => {
+                    if (!current.includes(skill)) {
+                        current.push(skill);
+                        addedCount++;
+                    }
+                });
+
+                if (addedCount > 0) {
+                    updateCurrentTags(current);
+                    renderTags();
+                    saveState();
+                    showStatus(`Added ${addedCount} skills!`);
+                    suggestionsArea.style.display = "none";
+                    lastFoundSkills = [];
+                }
+            }
+        });
+    }
 
     function renderSuggestions(skills) {
         suggestionsContainer.innerHTML = "";
