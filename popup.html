@@ -14,6 +14,17 @@
         <p class="subtitle">Enter skills and press Enter or Comma</p>
 
         <div class="input-group">
+            <div class="profile-controls">
+                <select id="profileSelect" title="Select Profile"></select>
+                <button id="addProfileBtn" class="icon-btn" title="New Profile">+</button>
+                <button id="deleteProfileBtn" class="icon-btn danger" title="Delete Profile">🗑️</button>
+            </div>
+
+            <div class="actions-bar">
+                <button id="smartPasteBtn" class="text-btn">📋 Paste from Resume</button>
+                <span id="skillCount" class="skill-count">0 skills</span>
+            </div>
+
             <div id="tagContainer" class="tag-container">
                 <input type="text" id="skillsInput" placeholder="Add a skill...">
             </div>
