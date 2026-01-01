@@ -1,196 +1,156 @@
-chrome.storage.local.get(["skills"], function (result) {
-    if (result.skills && result.skills.length > 0) {
-        let skillsToAdd = result.skills;
-        let inputField = document.querySelector("[data-automation-id='searchBox']"); // Use correct input field
+(async function () {
+    console.log("🚀 Workday Skills Autofill initiated...");
 
-        if (!inputField) {
-            console.error("❌ Workday skills input field not found!");
-            return;
-        }
-
-        function simulateTyping(element, text, callback) {
-            let i = 0;
-            element.focus();
-            element.value = ""; // Clear the input field
-
-            function typeCharacter() {
-                if (i < text.length) {
-                    element.value += text[i];
-
-                    // Trigger necessary events
-                    element.dispatchEvent(new Event("input", { bubbles: true }));
-                    element.dispatchEvent(new Event("change", { bubbles: true }));
-                    element.dispatchEvent(new KeyboardEvent("keydown", { key: text[i], bubbles: true }));
-                    element.dispatchEvent(new KeyboardEvent("keyup", { key: text[i], bubbles: true }));
-
-                    i++;
-                    setTimeout(typeCharacter, 100);
-                } else {
-                    setTimeout(() => {
-                        console.log(`🔹 Pressing 'ArrowDown' and 'Enter' for: ${text}`);
-                        element.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
-                        element.dispatchEvent(new KeyboardEvent("keyup", { key: "ArrowDown", bubbles: true }));
-
-                        setTimeout(() => {
-                            element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-                            element.dispatchEvent(new KeyboardEvent("keyup", { key: "Enter", bubbles: true }));
-                            setTimeout(callback, 1500);
-                        }, 500);
-                    }, 500);
-                }
-            }
-            typeCharacter();
-        }
-
-        chrome.storage.local.get(["skills"], function (result) {
-            if (result.skills && result.skills.length > 0) {
-                let skillsToAdd = result.skills;
-                let inputField = document.querySelector("[data-automation-id='searchBox']"); // Use correct input field
-        
-                if (!inputField) {
-                    console.error("❌ Workday skills input field not found!");
-                    return;
-                }
-        
-                function simulateTyping(element, text, callback) {
-                    let i = 0;
-                    element.focus();
-                    element.value = ""; // Clear the input field
-        
-                    function typeCharacter() {
-                        if (i < text.length) {
-                            element.value += text[i];
-        
-                            // Trigger necessary events
-                            element.dispatchEvent(new Event("input", { bubbles: true }));
-                            element.dispatchEvent(new Event("change", { bubbles: true }));
-                            element.dispatchEvent(new KeyboardEvent("keydown", { key: text[i], bubbles: true }));
-                            element.dispatchEvent(new KeyboardEvent("keyup", { key: text[i], bubbles: true }));
-        
-                            i++;
-                            setTimeout(typeCharacter, 100);
-                        } else {
-                            setTimeout(() => {
-                                console.log(`🔹 Pressing 'ArrowDown' and 'Enter' for: ${text}`);
-                                element.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
-                                element.dispatchEvent(new KeyboardEvent("keyup", { key: "ArrowDown", bubbles: true }));
-        
-                                setTimeout(() => {
-                                    element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-                                    element.dispatchEvent(new KeyboardEvent("keyup", { key: "Enter", bubbles: true }));
-                                    setTimeout(callback, 1500);
-                                }, 500);
-                            }, 500);
-                        }
-                    }
-                    typeCharacter();
-                }
-        
-                function waitForDropdown(skill, callback) {
-                    let attempts = 0;
-                    let maxAttempts = 5;
-                
-                    function checkDropdown() {
-                        let dropdownOptions = document.querySelectorAll("[role='option'], ul li");
-                        let checkbox = document.querySelector("[data-automation-id='checkboxPanel']");
-                        let isChecked = checkbox && checkbox.getAttribute("aria-checked") === "true"; // ✅ Check if it's already selected
-                
-                        if (dropdownOptions.length > 0) {
-                            console.log(`✅ Found dropdown options for: ${skill}`);
-                            dropdownOptions[0].click(); // Click the first dropdown item
-                
-                            setTimeout(() => {
-                                if (checkbox && !isChecked) { // 🔥 Click only if not already checked
-                                    console.log(`🔲 Clicking checkbox for: ${skill}`);
-                                    checkbox.click();
-                                } else if (isChecked) {
-                                    console.log(`✅ Checkbox for ${skill} is already selected. Skipping click.`);
-                                } else {
-                                    console.warn(`⚠️ Checkbox not found for: ${skill}. Trying again...`);
-                                }
-                
-                                setTimeout(callback, 800); // 🔥 Reduce delay to 800ms for speed
-                            }, 500);
-                        } else if (attempts < maxAttempts) {
-                            console.warn(`⚠️ No dropdown options yet for: ${skill}. Retrying (${attempts + 1}/${maxAttempts})...`);
-                            attempts++;
-                            setTimeout(checkDropdown, 500);
-                        } else {
-                            console.error(`❌ Dropdown did not appear for: ${skill}`);
-                            setTimeout(callback, 800);
-                        }
-                    }
-                
-                    checkDropdown();
-                }
-        
-                function addSkill(skill, callback) {
-                    console.log(`🔍 Typing skill: ${skill}`);
-                    inputField.focus();
-                    simulateTyping(inputField, skill, function () {
-                        waitForDropdown(skill, function () {
-                            let selectedSkills = document.querySelectorAll("[aria-label]");
-                            let added = Array.from(selectedSkills).some(item =>
-                                item.textContent.toLowerCase().includes(skill.toLowerCase())
-                            );
-        
-                            if (added) {
-                                console.log(`🎉 Successfully added: ${skill}`);
-                            } else {
-                                console.warn(`⚠️ Skill may not have been added correctly: ${skill}`);
-                            }
-        
-                            setTimeout(callback, 1000);
-                        });
-                    });
-                }
-        
-                function addSkillsSequentially(index = 0) {
-                    if (index < skillsToAdd.length) {
-                        addSkill(skillsToAdd[index], () => addSkillsSequentially(index + 1));
-                    } else {
-                        console.log("🎉 All skills added successfully!");
-                    }
-                }
-        
-                addSkillsSequentially();
-            } else {
-                console.error("❌ No skills found in storage.");
-            }
-        });
-        
-
-        function addSkill(skill, callback) {
-            console.log(`🔍 Typing skill: ${skill}`);
-            inputField.focus();
-            simulateTyping(inputField, skill, function () {
-                waitForDropdown(skill, function () {
-                    let selectedSkills = document.querySelectorAll("[aria-label]");
-                    let added = Array.from(selectedSkills).some(item =>
-                        item.textContent.toLowerCase().includes(skill.toLowerCase())
-                    );
-
-                    if (added) {
-                        console.log(`🎉 Successfully added: ${skill}`);
-                    } else {
-                        console.warn(`⚠️ Skill may not have been added correctly: ${skill}`);
-                    }
-
-                    setTimeout(callback, 1000);
-                });
+    /**
+     * Reads skills from Chrome local storage.
+     * @returns {Promise<string[]>}
+     */
+    function getStoredSkills() {
+        return new Promise((resolve) => {
+            chrome.storage.local.get(["skills"], (result) => {
+                resolve(result.skills || []);
             });
+        });
+    }
+
+    /**
+     * Pauses execution for a set time.
+     * @param {number} ms 
+     */
+    const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+    /**
+     * Simulates human-like typing into an input element.
+     * @param {HTMLElement} element 
+     * @param {string} text 
+     */
+    async function simulateTyping(element, text) {
+        element.focus();
+        element.value = "";
+
+        // Type characters
+        for (let char of text) {
+            element.value += char;
+            element.dispatchEvent(new Event("input", { bubbles: true }));
+            element.dispatchEvent(new KeyboardEvent("keydown", { key: char, bubbles: true }));
+            element.dispatchEvent(new KeyboardEvent("keypress", { key: char, bubbles: true }));
+            element.dispatchEvent(new KeyboardEvent("keyup", { key: char, bubbles: true }));
+            await delay(50 + Math.random() * 50); // Random typing speed
         }
 
-        function addSkillsSequentially(index = 0) {
-            if (index < skillsToAdd.length) {
-                addSkill(skillsToAdd[index], () => addSkillsSequentially(index + 1));
+        element.dispatchEvent(new Event("change", { bubbles: true }));
+        await delay(300);
+
+        // Simulate pressing Enter to trigger search/dropdown
+        console.log(`🔹 Pressing 'Enter' for: ${text}`);
+        element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+        element.dispatchEvent(new KeyboardEvent("keyup", { key: "Enter", bubbles: true }));
+        await delay(800);
+    }
+
+    /**
+     * Waits for the dropdown options to appear and selects the matching one.
+     * @param {string} skillName 
+     * @returns {Promise<boolean>} success
+     */
+    async function selectFromDropdown(skillName) {
+        let attempts = 0;
+        const maxAttempts = 10;
+
+        while (attempts < maxAttempts) {
+            // Workday dropdowns usually have role='listbox' or similar, options have role='option'
+            // Searching broadly for likely candidates including standard ul/li
+            const options = document.querySelectorAll("[role='option'], ul[role='listbox'] li, .dropdown div, li[data-automation-id='promptOption']");
+
+            if (options.length > 0) {
+                // Try to find exact or close match
+                const match = Array.from(options).find(opt =>
+                    opt.textContent.toLowerCase().includes(skillName.toLowerCase())
+                );
+
+                if (match) {
+                    console.log(`✅ Found option: "${match.textContent}". Clicking...`);
+                    match.click();
+                    match.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+                    match.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+                    return true;
+                }
+
+                // If options exist but no match, maybe try the first one if it's a generic "Search for..." (use caution)
+                // For now, we only click if we match text to avoid bad fills
+            }
+
+            attempts++;
+            await delay(500);
+        }
+
+        console.warn(`⚠️ Dropdown option not found for: ${skillName}`);
+        return false;
+    }
+
+    /**
+     * Checks if the checkbox panel appears and clicks it to confirm selection.
+     * (Workday specific behavior where selecting from dropdown sometimes opens a secondary checkbox)
+     */
+    async function confirmSelection() {
+        await delay(500);
+        const checkbox = document.querySelector("[data-automation-id='checkboxPanel']");
+        if (checkbox) {
+            const isChecked = checkbox.getAttribute("aria-checked") === "true";
+            if (!isChecked) {
+                console.log("🔲 Clicking confirmation checkbox...");
+                checkbox.click();
+                await delay(300);
             } else {
-                console.log("🎉 All skills added successfully!");
+                console.log("✅ Already checked.");
             }
         }
-
-        addSkillsSequentially();
-    } else {
-        console.error("❌ No skills found in storage.");
     }
-});
+
+    // --- Main Logic ---
+
+    const skills = await getStoredSkills();
+    if (skills.length === 0) {
+        console.warn("❌ No skills found in storage. Please add skills via the extension popup.");
+        return;
+    }
+
+    console.log(`📋 Found ${skills.length} skills to add:`, skills);
+
+    // Find the main input
+    const searchInput = document.querySelector("[data-automation-id='searchBox'], input[placeholder*='Search'], input[id*='skill']");
+
+    if (!searchInput) {
+        console.error("❌ Workday skills search input not found. Make sure you are on the correct page.");
+        return;
+    }
+
+    for (const skill of skills) {
+        // Check if already added (simple check)
+        const currentChips = Array.from(document.querySelectorAll("[data-automation-id='selectedItem'], .chip, [aria-label]"));
+        const alreadyExists = currentChips.some(chip => chip.textContent.toLowerCase().includes(skill.toLowerCase()) || chip.ariaLabel?.toLowerCase().includes(skill.toLowerCase()));
+
+        if (alreadyExists) {
+            console.log(`⏭️ Skill "${skill}" already exists. Skipping.`);
+            continue;
+        }
+
+        console.log(`🔍 Processing: ${skill}`);
+        await simulateTyping(searchInput, skill);
+
+        const selected = await selectFromDropdown(skill);
+        if (selected) {
+            await confirmSelection();
+
+            // Clear input for next item if needed (sometimes Workday does this automatically)
+            // searchInput.value = ""; 
+            await delay(1000);
+        } else {
+            console.warn(`❌ Failed to add: ${skill}`);
+            searchInput.value = ""; // Reset for next try
+        }
+    }
+
+    console.log("🎉 Autofill sequence complete!");
+
+})();

@@ -1,22 +1,149 @@
+:root {
+    --primary-color: #00baa1; /* Workday-ish blue/teal */
+    --secondary-color: #f0f1f5;
+    --text-color: #333;
+    --bg-color: #ffffff;
+    --tag-bg: #e1f5fe;
+    --tag-text: #0277bd;
+    --danger-color: #ff5252;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 350px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #2c3e50;
     text-align: center;
-    padding: 10px;
-    width: 300px;
 }
 
-textarea {
-    width: 100%;
-    height: 60px;
-    margin-bottom: 10px;
+.subtitle {
+    margin: 0;
+    font-size: 12px;
+    color: #7f8c8d;
+    text-align: center;
 }
 
-button {
-    width: 100%;
+/* Tag Container */
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
     padding: 8px;
-    margin-top: 5px;
-    background-color: #0073e6;
-    color: white;
-    border: none;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    min-height: 80px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fff;
+    cursor: text;
+}
+
+.tag-container:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 186, 161, 0.2);
+}
+
+.tag {
+    display: flex;
+    align-items: center;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 13px;
+    animation: fadeIn 0.2s ease;
+}
+
+.tag .remove-tag {
+    margin-left: 6px;
     cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--tag-text);
+    opacity: 0.7;
+}
+
+.tag .remove-tag:hover {
+    opacity: 1;
+    color: var(--danger-color);
+}
+
+#skillsInput {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 60px;
+    padding: 4px;
+    font-size: 13px;
+    background: transparent;
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.btn.primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn.primary:hover {
+    background-color: #009688;
+}
+
+.btn.secondary {
+    background-color: var(--secondary-color);
+    color: #555;
+    border: 1px solid #dcdcdc;
+}
+
+.btn.secondary:hover {
+    background-color: #e0e0e0;
+}
+
+/* Status Message */
+.status-message {
+    height: 20px;
+    font-size: 12px;
+    text-align: center;
+    color: var(--primary-color);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.status-message.visible {
+    opacity: 1;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }

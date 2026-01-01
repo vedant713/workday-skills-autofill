@@ -1,16 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workday Skills Autofill</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-    <h2>Workday Skills Autofill</h2>
-    <textarea id="skillsInput" placeholder="Enter skills, separated by commas..."></textarea>
-    <button id="saveSkills">Save Skills</button>
-    <button id="fillSkills">Autofill Workday</button>
+    <div class="container">
+        <h2>Workday Skills Autofill</h2>
+        <p class="subtitle">Enter skills and press Enter or Comma</p>
+
+        <div class="input-group">
+            <div id="tagContainer" class="tag-container">
+                <input type="text" id="skillsInput" placeholder="Add a skill...">
+            </div>
+        </div>
+
+        <div id="statusMessage" class="status-message"></div>
+
+        <div class="button-group">
+            <button id="saveSkills" class="btn primary">Save Skills</button>
+            <button id="fillSkills" class="btn secondary">Autofill Workday</button>
+        </div>
+    </div>
     <script src="popup.js"></script>
 </body>
+
 </html>

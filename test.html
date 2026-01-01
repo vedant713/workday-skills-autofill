@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workday Mock - Skills Input</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input[type="text"] { width: 100%; padding: 10px; font-size: 16px; margin-bottom: 20px; }
+        .dropdown { border: 1px solid #ccc; display: none; position: absolute; background: white; width: 300px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .dropdown div { padding: 10px; cursor: pointer; }
+        .dropdown div:hover { background-color: #f0f0f0; }
+        .checkbox-panel { margin-top: 20px; padding: 10px; border: 1px solid #eee; background: #fafafa; }
+        .selected-skills { margin-top: 20px; }
+        .chip { display: inline-block; background: #e0e0e0; padding: 5px 10px; border-radius: 15px; margin-right: 5px; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Workday Skills Mock</h1>
+        
+        <label for="skillInput">Skills</label>
+        <div style="position: relative;">
+            <!-- Simulating Workday's search box -->
+            <input type="text" id="skillInput" data-automation-id="searchBox" placeholder="Search for a skill...">
+            <div id="mockDropdown" class="dropdown" role="listbox">
+                <!-- Options will be injected here -->
+            </div>
+        </div>
+
+        <!-- Simulating the checkbox panel that appears after selection -->
+        <div class="checkbox-panel" data-automation-id="checkboxPanel" aria-checked="false" style="display:none;">
+            <label><input type="checkbox" id="mockCheckbox"> Select this skill</label>
+        </div>
+
+        <div class="selected-skills">
+            <h3>Selected Skills:</h3>
+            <div id="selectedList"></div>
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById('skillInput');
+        const dropdown = document.getElementById('mockDropdown');
+        const checkboxPanel = document.querySelector('[data-automation-id="checkboxPanel"]');
+        const checkbox = document.getElementById('mockCheckbox');
+        const selectedList = document.getElementById('selectedList');
+
+        // Mock database of skills
+        const MOCK_SKILLS = ["Java", "JavaScript", "Python", "React", "Node.js", "C++", "SQL", "Git"];
+
+        input.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            dropdown.innerHTML = '';
+            
+            if (val.length > 0) {
+                const matches = MOCK_SKILLS.filter(s => s.toLowerCase().includes(val));
+                if (matches.length > 0) {
+                    dropdown.style.display = 'block';
+                    matches.forEach(skill => {
+                        const opt = document.createElement('div');
+                        opt.setAttribute('role', 'option');
+                        opt.textContent = skill;
+                        opt.onclick = () => {
+                            input.value = skill; // Workday fills input
+                            dropdown.style.display = 'none';
+                            checkboxPanel.style.display = 'block';
+                            checkboxPanel.setAttribute('aria-checked', 'false');
+                            checkbox.checked = false;
+                        };
+                        dropdown.appendChild(opt);
+                    });
+                } else {
+                    dropdown.style.display = 'none';
+                }
+            } else {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Simulate Workday behavior: Clicking checkbox adds to list
+        checkboxPanel.addEventListener('click', () => {
+            if (checkboxPanel.getAttribute('aria-checked') === 'false') {
+                 checkboxPanel.setAttribute('aria-checked', 'true');
+                 checkbox.checked = true;
+                 
+                 // Add to selected list
+                 const chip = document.createElement('span');
+                 chip.className = 'chip';
+                 chip.textContent = input.value;
+                 chip.setAttribute('aria-label', input.value); // Content script checks this
+                 selectedList.appendChild(chip);
+                 
+                 // Clear input after a moment
+                 setTimeout(() => {
+                     input.value = '';
+                     checkboxPanel.style.display = 'none';
+                 }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
