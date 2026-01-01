@@ -54,6 +54,7 @@ chrome.commands.onCommand.addListener((command) => {
                 if (chrome.runtime.lastError) {
                     console.error("Autofill invocation failed:", chrome.runtime.lastError);
                 } else {
+                    chrome.tabs.sendMessage(tabId, { action: "AUTOFILL" });
                     console.log("Autofill triggered via shortcut!");
                 }
             });

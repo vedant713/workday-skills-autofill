@@ -109,48 +109,61 @@
 
     // --- Main Logic ---
 
-    const skills = await getStoredSkills();
-    if (skills.length === 0) {
-        console.warn("❌ No skills found in storage. Please add skills via the extension popup.");
-        return;
-    }
-
-    console.log(`📋 Found ${skills.length} skills to add:`, skills);
-
-    // Find the main input
-    const searchInput = document.querySelector("[data-automation-id='searchBox'], input[placeholder*='Search'], input[id*='skill']");
-
-    if (!searchInput) {
-        console.error("❌ Workday skills search input not found. Make sure you are on the correct page.");
-        return;
-    }
-
-    for (const skill of skills) {
-        // Check if already added (simple check)
-        const currentChips = Array.from(document.querySelectorAll("[data-automation-id='selectedItem'], .chip, [aria-label]"));
-        const alreadyExists = currentChips.some(chip => chip.textContent.toLowerCase().includes(skill.toLowerCase()) || chip.ariaLabel?.toLowerCase().includes(skill.toLowerCase()));
-
-        if (alreadyExists) {
-            console.log(`⏭️ Skill "${skill}" already exists. Skipping.`);
-            continue;
+    async function runAutofill() {
+        console.log("🚀 Workday Skills Autofill initiated...");
+        const skills = await getStoredSkills();
+        if (skills.length === 0) {
+            console.warn("❌ No skills found in storage. Please add skills via the extension popup.");
+            return;
         }
 
-        console.log(`🔍 Processing: ${skill}`);
-        await simulateTyping(searchInput, skill);
+        console.log(`📋 Found ${skills.length} skills to add:`, skills);
 
-        const selected = await selectFromDropdown(skill);
-        if (selected) {
-            await confirmSelection();
+        // Find the main input
+        const searchInput = document.querySelector("[data-automation-id='searchBox'], input[placeholder*='Search'], input[id*='skill']");
 
-            // Clear input for next item if needed (sometimes Workday does this automatically)
-            // searchInput.value = ""; 
-            await delay(1000);
-        } else {
-            console.warn(`❌ Failed to add: ${skill}`);
-            searchInput.value = ""; // Reset for next try
+        if (!searchInput) {
+            console.error("❌ Workday skills search input not found. Make sure you are on the correct page.");
+            return;
         }
+
+        for (const skill of skills) {
+            // Check if already added (simple check)
+            const currentChips = Array.from(document.querySelectorAll("[data-automation-id='selectedItem'], .chip, [aria-label]"));
+            const alreadyExists = currentChips.some(chip => chip.textContent.toLowerCase().includes(skill.toLowerCase()) || chip.ariaLabel?.toLowerCase().includes(skill.toLowerCase()));
+
+            if (alreadyExists) {
+                console.log(`⏭️ Skill "${skill}" already exists. Skipping.`);
+                continue;
+            }
+
+            console.log(`🔍 Processing: ${skill}`);
+            await simulateTyping(searchInput, skill);
+
+            const selected = await selectFromDropdown(skill);
+            if (selected) {
+                await confirmSelection();
+                await delay(1000);
+            } else {
+                console.warn(`❌ Failed to add: ${skill}`);
+                searchInput.value = ""; // Reset for next try
+            }
+        }
+        console.log("🎉 Autofill sequence complete!");
     }
 
-    console.log("🎉 Autofill sequence complete!");
+    // Listen for messages from popup or background
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        if (request.action === "SCAN_PAGE") {
+            // Try to find the job description container first, else fallback to body
+            const jobDesc = document.querySelector("[data-automation-id='jobPostingDescription'], .job-description, #job-description");
+            const text = jobDesc ? jobDesc.innerText : document.body.innerText;
+            sendResponse({ text: text });
+        }
+
+        if (request.action === "AUTOFILL") {
+            runAutofill();
+        }
+    });
 
 })();

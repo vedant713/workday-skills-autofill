@@ -286,3 +286,75 @@ body.dark-mode .icon-btn.danger:hover {
         transform: scale(1);
     }
 }
+/* Suggestions Area */
+.suggestions-area {
+    background: #fff3e0;
+    border: 1px solid #ffe0b2;
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 8px;
+    animation: fadeIn 0.3s ease;
+}
+
+body.dark-mode .suggestions-area {
+    background: #4e342e;
+    border-color: #5d4037;
+}
+
+.suggestions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: bold;
+    color: #ef6c00;
+    margin-bottom: 6px;
+}
+
+body.dark-mode .suggestions-header {
+    color: #ffcc80;
+}
+
+.icon-btn-small {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+    color: inherit;
+}
+
+.tag-container.suggestions {
+    background: transparent;
+    border: none;
+    padding: 0;
+    min-height: auto;
+    max-height: 100px;
+    box-shadow: none;
+}
+
+.tag.suggestion {
+    background: #ffe0b2;
+    color: #e65100;
+    cursor: pointer;
+    border: 1px solid #ffcc80;
+}
+
+body.dark-mode .tag.suggestion {
+    background: #5d4037;
+    color: #ffcc80;
+    border-color: #795548;
+}
+
+.tag.suggestion:hover {
+    background: #ffcc80;
+}
+
+body.dark-mode .tag.suggestion:hover {
+    background: #795548;
+}
+
+.tag.suggestion .add-icon {
+    margin-left: 6px;
+    font-weight: bold;
+}

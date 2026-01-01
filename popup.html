@@ -30,7 +30,15 @@
                     <button id="importBtn" class="text-btn" title="Import Profiles">⬆️ Import</button>
                     <input type="file" id="importFile" accept=".json" style="display: none;">
                 </div>
-                <button id="smartPasteBtn" class="text-btn">📋 Paste from Resume</button>
+                <button id="scanJobBtn" class="text-btn" title="Check for missing skills">🔍 Scan Job</button>
+            </div>
+
+            <div id="suggestionsArea" class="suggestions-area" style="display:none;">
+                <div class="suggestions-header">
+                    <span>Missing Skills Found:</span>
+                    <button id="closeSuggestions" class="icon-btn-small">×</button>
+                </div>
+                <div id="suggestionsContainer" class="tag-container suggestions"></div>
             </div>
 
             <div id="tagContainer" class="tag-container">

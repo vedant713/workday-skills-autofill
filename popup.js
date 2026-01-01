@@ -244,6 +244,90 @@ document.addEventListener("DOMContentLoaded", function () {
         event.target.value = '';
     });
 
+    // --- Scan Job (Gap Analysis) ---
+
+    // Reuse parser matching logic but return array
+    function extractSkillsFromText(text) {
+        let processed = text.replace(/\s-\s/g, "\n");
+        const rawItems = processed.split(/[\n,•*|():]+/);
+        const uniqueSkills = new Set();
+
+        rawItems.forEach(item => {
+            const clean = item.trim();
+            // Stricter filter for scanner to avoid too much noise from full page text
+            // Look for Capitalized Words or known tech keywords logic could be improved here
+            // For now, using same length heuristics but maybe excluding common stop words
+            if (clean && clean.length > 2 && clean.length < 30 && clean.toLowerCase() !== "skills") {
+                uniqueSkills.add(clean);
+            }
+        });
+        return Array.from(uniqueSkills);
+    }
+
+    const suggestionsArea = document.getElementById("suggestionsArea");
+    const suggestionsContainer = document.getElementById("suggestionsContainer");
+
+    document.getElementById("scanJobBtn").addEventListener("click", () => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs.length === 0) return;
+
+            // Inject content script if not ready (just in case), then message
+            chrome.scripting.executeScript({
+                target: { tabId: tabs[0].id },
+                files: ["content.js"]
+            }, () => {
+                if (!chrome.runtime.lastError) {
+                    chrome.tabs.sendMessage(tabs[0].id, { action: "SCAN_PAGE" }, (response) => {
+                        if (response && response.text) {
+                            const foundSkills = extractSkillsFromText(response.text);
+                            const currentTags = getCurrentTags();
+                            const missing = foundSkills.filter(skill =>
+                                !currentTags.includes(skill) &&
+                                // Simple noise filter: Only show if it looks like a proper noun (Starts with Cap) or is known short tech
+                                (skill[0] === skill[0].toUpperCase() || ["git", "sql", "css", "aws"].includes(skill.toLowerCase()))
+                            );
+
+                            renderSuggestions(missing);
+                            if (missing.length > 0) {
+                                suggestionsArea.style.display = "block";
+                                showStatus(`Found ${missing.length} potential skills!`);
+                            } else {
+                                showStatus("No new skills found.");
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+    document.getElementById("closeSuggestions").addEventListener("click", () => {
+        suggestionsArea.style.display = "none";
+    });
+
+    function renderSuggestions(skills) {
+        suggestionsContainer.innerHTML = "";
+        skills.slice(0, 20).forEach(skill => { // Limit to 20 to not overwhelming
+            const tag = document.createElement("div");
+            tag.className = "tag suggestion";
+            tag.innerHTML = `<span>${skill}</span><span class="add-icon">+</span>`;
+            tag.onclick = () => {
+                const current = getCurrentTags();
+                if (!current.includes(skill)) {
+                    current.push(skill);
+                    updateCurrentTags(current);
+                    renderTags();
+                    saveState();
+                    tag.remove(); // Remove from suggestions
+                    if (suggestionsContainer.children.length === 0) {
+                        suggestionsArea.style.display = "none";
+                    }
+                }
+            };
+            suggestionsContainer.appendChild(tag);
+        });
+    }
+
     // --- Smart Paste ---
 
     elements.smartPasteBtn.addEventListener("click", () => {
@@ -364,6 +448,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (chrome.runtime.lastError) {
                     showStatus("❌ Failed to inject.", "error");
                 } else {
+                    // Send message to trigger start
+                    chrome.tabs.sendMessage(tabs[0].id, { action: "AUTOFILL" });
                     showStatus("⚡ Autofill started!");
                 }
             });
