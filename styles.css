@@ -146,6 +146,11 @@ body.dark-mode .icon-btn.danger:hover {
     font-size: 12px;
 }
 
+.data-controls {
+    display: flex;
+    gap: 8px;
+}
+
 .text-btn {
     background: none;
     border: none;

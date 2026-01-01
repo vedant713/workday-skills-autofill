@@ -24,8 +24,13 @@
             </div>
 
             <div class="actions-bar">
-                <button id="smartPasteBtn" class="text-btn">📋 Paste from Resume</button>
                 <span id="skillCount" class="skill-count">0 skills</span>
+                <div class="data-controls">
+                    <button id="exportBtn" class="text-btn" title="Export Profiles">⬇️ Export</button>
+                    <button id="importBtn" class="text-btn" title="Import Profiles">⬆️ Import</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;">
+                </div>
+                <button id="smartPasteBtn" class="text-btn">📋 Paste from Resume</button>
             </div>
 
             <div id="tagContainer" class="tag-container">

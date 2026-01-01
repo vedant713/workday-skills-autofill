@@ -193,6 +193,57 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // --- Data Management (Export / Import) ---
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.profiles));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "workday-skills-backup.json");
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    });
+
+    document.getElementById("importBtn").addEventListener("click", () => {
+        document.getElementById("importFile").click();
+    });
+
+    document.getElementById("importFile").addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (imported && typeof imported === 'object') {
+                    // Simple validation: check if values are arrays
+                    const valid = Object.values(imported).every(Array.isArray);
+                    if (valid) {
+                        state.profiles = imported;
+                        // Reset to default if current profile invalid
+                        if (!state.profiles[state.currentProfile]) {
+                            state.currentProfile = Object.keys(state.profiles)[0] || "Default";
+                        }
+                        renderProfileOptions();
+                        renderTags();
+                        saveState();
+                        showStatus("✅ Profiles imported!");
+                    } else {
+                        alert("Invalid file format: Profiles must be lists of skills.");
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error parsing JSON file");
+            }
+        };
+        reader.readAsText(file);
+        // Clear input so same file can be selected again
+        event.target.value = '';
+    });
+
     // --- Smart Paste ---
 
     elements.smartPasteBtn.addEventListener("click", () => {
