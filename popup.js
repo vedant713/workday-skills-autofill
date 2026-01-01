@@ -16,14 +16,15 @@ document.addEventListener("DOMContentLoaded", function () {
     // --- State ---
     let state = {
         profiles: { "Default": [] },
-        currentProfile: "Default"
+        currentProfile: "Default",
+        theme: "light"
     };
 
     // --- Initialization ---
     init();
 
     function init() {
-        chrome.storage.local.get(["skills", "profiles", "currentProfile"], function (result) {
+        chrome.storage.local.get(["skills", "profiles", "currentProfile", "theme"], function (result) {
             // Data Migration: If old 'skills' exist but no 'profiles', migrate them.
             if (result.skills && !result.profiles) {
                 state.profiles = { "Default": result.skills };
@@ -33,12 +34,36 @@ document.addEventListener("DOMContentLoaded", function () {
                 state.currentProfile = result.currentProfile || "Default";
             }
 
+            // Theme Init
+            if (result.theme) {
+                state.theme = result.theme;
+                applyTheme();
+            }
+
             renderProfileOptions();
             renderTags();
         });
     }
 
     // --- Core Logic ---
+
+    function applyTheme() {
+        const toggleBtn = document.getElementById("themeToggle");
+        if (state.theme === "dark") {
+            document.body.classList.add("dark-mode");
+            toggleBtn.textContent = "☀️";
+        } else {
+            document.body.classList.remove("dark-mode");
+            toggleBtn.textContent = "🌙";
+        }
+    }
+
+    // Toggle Theme Event
+    document.getElementById("themeToggle").addEventListener("click", () => {
+        state.theme = state.theme === "light" ? "dark" : "light";
+        applyTheme();
+        saveState();
+    });
 
     function getCurrentTags() {
         return state.profiles[state.currentProfile] || [];
@@ -53,6 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
         chrome.storage.local.set({
             profiles: state.profiles,
             currentProfile: state.currentProfile,
+            theme: state.theme,
             skills: getCurrentTags() // meaningful fallback for basic content scripts
         }, () => {
             // Optional: feedback

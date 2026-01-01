@@ -1,13 +1,33 @@
 :root {
     --primary-color: #00baa1;
-    /* Workday-ish blue/teal */
     --secondary-color: #f0f1f5;
     --text-color: #333;
+    --title-color: #2c3e50;
+    --subtitle-color: #7f8c8d;
     --bg-color: #ffffff;
+    --container-bg: #fff;
     --tag-bg: #e1f5fe;
     --tag-text: #0277bd;
     --danger-color: #ff5252;
     --border-color: #ddd;
+    --input-color: #333;
+    --btn-bg: white;
+    --btn-hover: #f5f5f5;
+}
+
+body.dark-mode {
+    --bg-color: #1e1e1e;
+    --text-color: #f5f5f5;
+    --title-color: #f5f5f5;
+    --subtitle-color: #b0bec5;
+    --secondary-color: #2d2d2d;
+    --container-bg: #2d2d2d;
+    --tag-bg: #37474f;
+    --tag-text: #4fc3f7;
+    --border-color: #444;
+    --input-color: #f5f5f5;
+    --btn-bg: #2d2d2d;
+    --btn-hover: #3d3d3d;
 }
 
 body {
@@ -15,9 +35,33 @@ body {
     margin: 0;
     padding: 0;
     width: 360px;
-    /* Slightly wider */
     background-color: var(--bg-color);
     color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Header with Theme Toggle */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    padding-bottom: 8px;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 6px;
+    border-radius: 50%;
+    transition: background 0.2s;
+    color: var(--text-color);
+}
+
+.theme-toggle:hover {
+    background: var(--secondary-color);
 }
 
 .container {
@@ -30,14 +74,15 @@ body {
 h2 {
     margin: 0;
     font-size: 18px;
-    color: #2c3e50;
+    color: var(--title-color);
     text-align: center;
+    flex-grow: 1;
 }
 
 .subtitle {
     margin: 0;
     font-size: 12px;
-    color: #7f8c8d;
+    color: var(--subtitle-color);
     text-align: center;
 }
 
@@ -55,13 +100,16 @@ h2 {
     border: 1px solid var(--border-color);
     font-size: 13px;
     outline: none;
+    background-color: var(--btn-bg);
+    color: var(--text-color);
 }
 
 .icon-btn {
     width: 30px;
     height: 30px;
     border: 1px solid var(--border-color);
-    background: white;
+    background: var(--btn-bg);
+    color: var(--text-color);
     border-radius: 4px;
     cursor: pointer;
     display: flex;
@@ -72,7 +120,7 @@ h2 {
 }
 
 .icon-btn:hover {
-    background: #f5f5f5;
+    background: var(--btn-hover);
 }
 
 .icon-btn.danger:hover {
@@ -80,6 +128,14 @@ h2 {
     border-color: #ffcdd2;
     color: var(--danger-color);
 }
+
+/* In Dark Mode, danger hover needs adjustment */
+body.dark-mode .icon-btn.danger:hover {
+    background: #5c2b2b;
+    border-color: #7f3939;
+    color: #ff8a80;
+}
+
 
 /* Actions Bar */
 .actions-bar {
@@ -104,7 +160,7 @@ h2 {
 }
 
 .skill-count {
-    color: #888;
+    color: var(--subtitle-color);
 }
 
 /* Tag Container */
@@ -118,8 +174,9 @@ h2 {
     min-height: 100px;
     max-height: 220px;
     overflow-y: auto;
-    background: #fff;
+    background: var(--container-bg);
     cursor: text;
+    transition: background-color 0.3s;
 }
 
 .tag-container:focus-within {
@@ -160,6 +217,7 @@ h2 {
     padding: 4px;
     font-size: 13px;
     background: transparent;
+    color: var(--input-color);
 }
 
 /* Buttons */
@@ -190,12 +248,12 @@ h2 {
 
 .btn.secondary {
     background-color: var(--secondary-color);
-    color: #555;
-    border: 1px solid #dcdcdc;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
 }
 
 .btn.secondary:hover {
-    background-color: #e0e0e0;
+    background-color: var(--border-color);
 }
 
 /* Status Message */
