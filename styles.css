@@ -358,3 +358,14 @@ body.dark-mode .tag.suggestion:hover {
     margin-left: 6px;
     font-weight: bold;
 }
+
+/* Match Score Badge */
+.match-badge {
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    background-color: #9e9e9e; /* Default gray */
+    transition: background-color 0.3s ease;
+}

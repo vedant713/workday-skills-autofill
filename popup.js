@@ -139,6 +139,21 @@ document.addEventListener("DOMContentLoaded", function () {
         return div;
     }
 
+    // Clear All Button
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener("click", () => {
+            if (getCurrentTags().length === 0) return;
+
+            if (confirm("Are you sure you want to remove ALL skills from this profile?")) {
+                updateCurrentTags([]);
+                renderTags();
+                saveState();
+                showStatus("All skills removed.", "error");
+            }
+        });
+    }
+
     function updateCount() {
         const count = getCurrentTags().length;
         elements.skillCount.textContent = `${count} skill${count !== 1 ? 's' : ''}`;
@@ -307,11 +322,32 @@ document.addEventListener("DOMContentLoaded", function () {
                             const currentTags = getCurrentTags();
                             const missing = foundSkills.filter(skill => !currentTags.includes(skill));
 
+                            // Calculate Match Score
+                            let matchPercent = 0;
+                            if (foundSkills.length > 0) {
+                                const matchedCount = foundSkills.length - missing.length;
+                                matchPercent = Math.round((matchedCount / foundSkills.length) * 100);
+                            }
+
+                            // Update UI
+                            const scoreEl = document.getElementById("matchScore");
+                            if (scoreEl) {
+                                scoreEl.textContent = `${matchPercent}% Match`;
+                                scoreEl.style.display = "inline-block";
+                                // Color coding
+                                if (matchPercent >= 80) scoreEl.style.backgroundColor = "#4caf50"; // Green
+                                else if (matchPercent >= 50) scoreEl.style.backgroundColor = "#ff9800"; // Orange
+                                else scoreEl.style.backgroundColor = "#f44336"; // Red
+                            }
+
                             lastFoundSkills = missing; // Save for Add All
                             renderSuggestions(missing);
                             if (missing.length > 0) {
                                 suggestionsArea.style.display = "block";
-                                showStatus(`Found ${missing.length} potential skills!`);
+                                showStatus(`Found ${missing.length} missing skills!`);
+                            } else if (matchPercent === 100) {
+                                suggestionsArea.style.display = "block";
+                                showStatus("Perfect Match! 🎉");
                             } else {
                                 showStatus("No new skills found.");
                             }

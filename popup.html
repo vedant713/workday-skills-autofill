@@ -25,6 +25,8 @@
 
             <div class="actions-bar">
                 <span id="skillCount" class="skill-count">0 skills</span>
+                <button id="clearAllBtn" class="text-btn" style="color: #ff5252; margin-left: auto; margin-right: 10px;"
+                    title="Remove all skills">Clear All</button>
                 <div class="data-controls">
                     <button id="exportBtn" class="text-btn" title="Export Profiles">⬇️ Export</button>
                     <button id="importBtn" class="text-btn" title="Import Profiles">⬆️ Import</button>
@@ -35,7 +37,10 @@
 
             <div id="suggestionsArea" class="suggestions-area" style="display:none;">
                 <div class="suggestions-header">
-                    <span>Missing Skills Found:</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span>Missing Skills Found:</span>
+                        <span id="matchScore" class="match-badge" style="display:none;">0% Match</span>
+                    </div>
                     <div style="display:flex; gap:5px;">
                         <button id="addAllSuggestions" class="text-btn small" title="Add all missing skills">Add
                             All</button>
