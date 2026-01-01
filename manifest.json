@@ -1,0 +1,21 @@
+{
+    "manifest_version": 3,
+    "name": "Workday Skills Autofill",
+    "version": "1.0",
+    "description": "Automatically fills the Workday skills section with predefined skills.",
+    "permissions": ["storage", "scripting", "activeTab"],
+    "host_permissions": ["https://*.workday.com/*"],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "action": {
+      "default_popup": "popup.html"
+    },
+    "content_scripts": [
+      {
+        "matches": ["https://*.workday.com/*"],
+        "js": ["content.js"]
+      }
+    ]
+  }
+  
